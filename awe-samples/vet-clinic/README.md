@@ -61,7 +61,7 @@ Run from the repository root:
 
 ```bash
 # Build the application and the framework modules it needs (first time; skip the tests to save time)
-mvn -pl awe-samples/vet-clinic -am install -DskipTests
+mvn -Psamples -pl awe-samples/vet-clinic -am install -DskipTests
 
 # Run it from Maven ...
 mvn -f awe-samples/vet-clinic/pom.xml spring-boot:run
@@ -71,7 +71,7 @@ java -jar awe-samples/vet-clinic/target/vet-clinic.jar
 ```
 
 Open <http://localhost:18101>. Add `-Dskip.frontend=true` to build or test the descriptors without the frontend
-(`mvn test -pl awe-samples/vet-clinic -Dskip.frontend=true`).
+(`mvn -Psamples test -pl awe-samples/vet-clinic -Dskip.frontend=true`).
 
 ### What the first start creates
 
@@ -198,7 +198,7 @@ Only three targets run without a session: the species and reason lists of the re
 
 ### Tests
 
-14 tests, no Spring context and no browser (`mvn test -pl awe-samples/vet-clinic -Dskip.frontend=true`):
+14 tests, no Spring context and no browser (`mvn -Psamples test -pl awe-samples/vet-clinic -Dskip.frontend=true`):
 
 - `VetClinicDescriptorTest` (10) extends `AbstractApplicationDescriptorTest` of `awe-testing`. It checks that every XML
   parses into its AWE model, that every locale key exists in the three languages, that every target a screen launches

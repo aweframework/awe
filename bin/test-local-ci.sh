@@ -1585,8 +1585,8 @@ fast_case "an AngularJS client change runs the AngularJS suites, not the React o
   "playwright-angular frontend-ut build" "playwright-react embedded-db db-mysql"
 fast_case "a backend change keeps everything the merge request pipeline runs" "awe-framework/awe-controller/src/main/java/A.java" \
   "all-ut embedded-db db-mysql db-postgresql db-sqlserver db-oracle playwright-angular playwright-react javadoc" ""
-fast_case "a sample application change skips the databases (they test awe-boot and the framework)" "awe-samples/a/src/main/java/A.java" \
-  "all-ut build" "embedded-db db-mysql db-postgresql db-sqlserver db-oracle"
+fast_case "a sample application change runs no Maven job (the samples are out of the default reactor)" "awe-samples/a/src/main/java/A.java" \
+  "" "all-ut build embedded-db db-mysql db-postgresql db-sqlserver db-oracle"
 fast_case "a change of awe-boot test code runs the databases and the AngularJS suites only" "awe-tests/awe-boot/src/test/java/A.java" \
   "embedded-db db-mysql playwright-angular" "playwright-react"
 fast_case "a docs change still runs nothing heavy" "website/docs/a.md" "website" "embedded-db playwright-angular all-ut build"
@@ -1610,8 +1610,8 @@ selection_case "default: a React-only client change runs the React browser suite
   "awe-framework/awe-client-react/src/A.jsx" "playwright-react" "playwright-angular embedded-db all-ut"
 selection_case "default: an awe-boot-react test change runs both engines and the databases (awe-tests/**)" \
   "awe-tests/awe-boot-react/src/test/A.java" "playwright-angular playwright-react embedded-db db-mysql" ""
-selection_case "default: a samples change runs the backend jobs" "awe-samples/a/src/main/java/A.java" \
-  "all-ut embedded-db db-oracle build" "frontend-ut"
+selection_case "default: a samples change runs no Maven job (the samples are out of the default reactor)" "awe-samples/a/src/main/java/A.java" \
+  "" "all-ut embedded-db db-oracle build frontend-ut"
 selection_case "default: a website-only change runs no Maven job" "website/docs/a.md" "website" "build all-ut embedded-db db-mysql playwright-angular"
 
 
