@@ -446,7 +446,8 @@ function AweMenu(props) {
       if (descriptionPanel && key) {
         setHovered({ key, name: event.target.closest?.("a[name]")?.getAttribute("name") || null });
       }
-      if (key !== undefined && key !== launchedKey.current) {
+      // A first level option without options (null) closes the flyout of the previous one
+      if (key === null || (key !== undefined && key !== launchedKey.current)) {
         launchedKey.current = null;
         clearTimeout(flyoutTimer.current);
         setFlyoutKey(key);
