@@ -10068,8 +10068,8 @@ describe('awe-react-client/test/js/components/AweMenuTest.jsx', () => {
       ViewRegistry.setView("report", {loading: true});
     });
 
-    const renderRail = (collapsed = true) => {
-      MenuRegistry.setOptions(options);
+    const renderRail = (collapsed = true, railOptions = options) => {
+      MenuRegistry.setOptions(railOptions);
       renderWithProviders(
         <div className={collapsed ? "layout-container layout-static-inactive" : "layout-container"}>
           <AweMenu id="menu" style="vertical"/>
@@ -10109,6 +10109,27 @@ describe('awe-react-client/test/js/components/AweMenuTest.jsx', () => {
       expect(panel("settings").querySelector(".p-panelmenu-header")).toHaveAttribute("aria-expanded", "true");
       act(() => jest.advanceTimersByTime(300));
       expect(panel("settings").querySelector(".p-panelmenu-header")).not.toHaveAttribute("aria-expanded", "true");
+    });
+
+    it('closes the flyout when the pointer or the focus goes to a first level option without options', () => {
+      const information = options.find(option => option.name === "information");
+      const leaf = name => ({...information, name, id: name, label: name.toUpperCase(), visible: true});
+      renderRail(true, [...options, leaf("home"), {...leaf("dashboard"), menuScreen: true}]);
+      const toolsHeader = panel("tools").querySelector(".p-panelmenu-header");
+
+      fireEvent.mouseOver(toolsHeader);
+      expect(flyout("tools")).not.toBeNull();
+      fireEvent.mouseOver(panel("home").querySelector(".p-panelmenu-header"));
+      expect(toolsHeader).not.toHaveAttribute("aria-expanded", "true");
+
+      fireEvent.mouseOver(toolsHeader);
+      fireEvent.mouseOver(panel("dashboard").querySelector(".p-panelmenu-header"));
+      expect(toolsHeader).not.toHaveAttribute("aria-expanded", "true");
+
+      fireEvent.focus(toolsHeader);
+      expect(flyout("tools")).not.toBeNull();
+      fireEvent.focus(panel("home").querySelector(".p-panelmenu-header"));
+      expect(toolsHeader).not.toHaveAttribute("aria-expanded", "true");
     });
 
     it('opens the flyout of a first level option that gets the keyboard focus', () => {
