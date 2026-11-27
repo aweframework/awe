@@ -509,14 +509,15 @@ Security · Secrets:
   allow_failure: false
   script:
     - /analyzer run
-    # Checked with grep, not jq: the secret analyzer image (Alpine) has no jq. Every finding of the report, and nothing
-    # else in it, carries this category.
+    # Checked with grep, not jq: the secret analyzer image (Alpine) has no jq. A finding is any entry of the vulnerabilities
+    # array (whitespace removed first, so the layout of the JSON does not matter); vulnerabilities[].category is not used
+    # because security report schema 15 removed it, and the check would then pass whatever the scan finds (#1003).
     - |
       if [ ! -s gl-secret-detection-report.json ]; then
         echo "gl-secret-detection-report.json is missing or empty: the scan gave no result"
         exit 1
       fi
-      if grep -q '"category"[[:space:]]*:[[:space:]]*"secret_detection"' gl-secret-detection-report.json; then
+      if tr -d '[:space:]' < gl-secret-detection-report.json | grep -q '"vulnerabilities":\[{'; then
         echo "Secrets found in the scanned commits, in these files (the values are not printed):"
         grep -o '"file"[[:space:]]*:[[:space:]]*"[^"]*"' gl-secret-detection-report.json | sort -u
         echo "Revoke the secret first: it is already in a public repository. Then remove it from the commits and push again."
