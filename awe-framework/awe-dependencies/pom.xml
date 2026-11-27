@@ -18,7 +18,7 @@
   <properties>
     <!-- dependency versions -->
     <awe.version>${revision}</awe.version>
-    <ade.version>3.0.7</ade.version>
+    <ade.version>3.0.8</ade.version>
     <spring-boot.version>4.1.2</spring-boot.version>
     <spring-cloud.version>2025.1.4</spring-cloud.version>
     <javax.activation.version>1.2.0</javax.activation.version>
