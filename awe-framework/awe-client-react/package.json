@@ -74,7 +74,7 @@
     "react-pdfobject": "^1.2.0",
     "react-pivottable": "0.11.1",
     "react-player": "2.16.1",
-    "react-redux": "9.3.0",
+    "react-redux": "9.3.1",
     "react-router": "7.18.4",
     "validate-date": "2.1.0",
     "zrender": "6.1.0"
