@@ -27,7 +27,7 @@ function AweSelect(props) {
     return <CriterionSkeleton attributes={attributes}/>;
   }
 
-  const classes = classNames({[`text-${size}`]: size, [`p-inputtext-${size}`]: size, "p-invalid": error });
+  const classes = classNames({[`p-inputtext-${size}`]: size, "p-invalid": error });
   return <AweCriterion address={address} attributes={attributes} validationRules={validationRules}>
       <Dropdown
       ref={ref}

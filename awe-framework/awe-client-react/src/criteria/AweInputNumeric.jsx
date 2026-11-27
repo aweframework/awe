@@ -38,7 +38,7 @@ function AweInputNumeric(props) {
   const [number, setNumber] = useState(Number(valueFromModel));
 
   const {required, readonly, numberFormat, size, align, icon, unit, error = false, showSlider = false } = attributes;
-  const classes = classNames({ "with-icon": icon, "with-unit": unit, "with-slider": showSlider, [`text-${size}`]: size, [`p-inputtext-${size}`]: size, "p-invalid": error });
+  const classes = classNames({ "with-icon": icon, "with-unit": unit, "with-slider": showSlider, [`p-inputtext-${size}`]: size, "p-invalid": error });
 
   const nf = useMemo(() => translateNumberFormat(numberFormat), [numberFormat]);
 

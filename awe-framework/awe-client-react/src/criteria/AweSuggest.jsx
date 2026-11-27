@@ -55,7 +55,7 @@ function AweSuggest(props) {
   // one too: the validation warns if it is saved empty (#996)
   const hasValue = value?.value !== undefined && value?.value !== null && value?.value !== "";
   const clearable = !readonly && hasValue;
-  const classes = classNames("", { [`text-${size}`]: size, [`p-inputtext-${size}`]: size, "p-invalid": error,
+  const classes = classNames("", { [`p-inputtext-${size}`]: size, "p-invalid": error,
     "awe-suggest-clearable": clearable });
   const isLargeList = suggestions.length > 100;
   const enableVirtualScroll = virtualScroll !== false;

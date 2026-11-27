@@ -111,8 +111,33 @@
   min-height: var(--awe-size-control);
 }
 
-/* Addon (icon, unit, separator) of an input group: it takes the control height of the field, whatever its content, so a
-   field with an icon is as tall as one without. The icon is centred in it and follows the sm and lg sizes */
+/* A one-line text field is exactly the control height of the density, as its addon below: the padding and font of the
+   sm and lg sizes do not change with the density, so in compact their natural height (padding, line and border) is
+   taller than the control height and a min-height would not cap it (#1002). The text is centred without vertical
+   padding, as the label of a select field. :where() keeps this default below the sm and lg sizes (one class more) */
+:where(.field) input.p-inputtext:where(:not(.p-dropdown-label, .p-dropdown-filter, .p-multiselect-filter)) {
+  height: var(--awe-size-control);
+  padding-top: 0;
+  padding-bottom: 0;
+}
+
+.field input.p-inputtext-sm.p-inputtext,
+.field .p-inputtext-sm input.p-inputtext:where(:not(.p-dropdown-label)) {
+  height: var(--awe-size-control-sm);
+  padding-top: 0;
+  padding-bottom: 0;
+}
+
+.field input.p-inputtext-lg.p-inputtext,
+.field .p-inputtext-lg input.p-inputtext:where(:not(.p-dropdown-label)) {
+  height: var(--awe-size-control-lg);
+  padding-top: 0;
+  padding-bottom: 0;
+}
+
+/* Addon (icon, unit, separator) of an input group: it takes the control height and the font size of the field, whatever
+   its content, so a field with an icon is as tall as one without. The icon is centred in it and follows the sm and lg
+   sizes */
 .field .p-inputgroup > .p-inputgroup-addon {
   display: flex;
   align-items: center;
@@ -121,14 +146,17 @@
   height: var(--awe-size-control);
   padding-top: 0;
   padding-bottom: 0;
+  font-size: var(--awe-font-size-base);
 }
 
 .field .p-inputgroup > .p-inputgroup-addon.p-inputtext-sm {
   height: var(--awe-size-control-sm);
+  font-size: var(--awe-font-size-sm);
 }
 
 .field .p-inputgroup > .p-inputgroup-addon.p-inputtext-lg {
   height: var(--awe-size-control-lg);
+  font-size: var(--awe-font-size-lg);
 }
 
 /* The label of a select field keeps no vertical padding of its own (PrimeReact gives it the padding of a text field and
@@ -146,6 +174,15 @@
 .field .p-inputtext-sm.p-dropdown,
 .field .p-inputtext-sm.p-multiselect {
   min-height: var(--awe-size-control-sm);
+}
+
+/* The label of a multiple select is no input text, so the theme does not give it the font of the sm and lg sizes */
+.field .p-inputtext-sm.p-multiselect {
+  font-size: var(--awe-font-size-sm);
+}
+
+.field .p-inputtext-lg.p-multiselect {
+  font-size: var(--awe-font-size-lg);
 }
 
 .field .p-inputtext-lg.p-inputtext,
@@ -410,6 +447,13 @@
 
 .p-inputtext.password-field {
   padding-inline-end: calc(var(--awe-size-control-sm) + 2 * var(--awe-space-1));
+}
+
+/* The button and the Caps Lock icon after the input sit inside it, so the input keeps the rounded end of the field that
+   the input group only gives to its last child (unless an addon follows it) */
+.p-inputgroup > .p-inputtext.password-field:not(:has(~ .p-inputgroup-addon)) {
+  border-start-end-radius: var(--awe-radius-field);
+  border-end-end-radius: var(--awe-radius-field);
 }
 
 .p-inputtext.password-field.caps-lock {

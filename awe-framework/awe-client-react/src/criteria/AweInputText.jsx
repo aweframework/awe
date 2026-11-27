@@ -19,7 +19,7 @@ function AweInputText(props) {
 
   const {required, readonly, size, error } = attributes;
   const onKeyDown = useEnterKey(onSubmit);
-  const classes = classNames({ [`text-${size}`]: size, [`p-inputtext-${size}`]: size, "p-invalid": error });
+  const classes = classNames({ [`p-inputtext-${size}`]: size, "p-invalid": error });
 
   return (
     <AweCriterion address={address} attributes={attributes} validationRules={validationRules}>

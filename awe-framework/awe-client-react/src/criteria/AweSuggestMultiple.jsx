@@ -49,7 +49,7 @@ function AweSuggestMultiple(props) {
   const {required, readonly, timeout, size, error, display} = attributes;
   // display="summary" keeps the field one control high: the chips that fit, then a counter that lists them all (#845)
   const summary = display === "summary";
-  const classes = classNames("", { [`text-${size}`]: size, [`p-inputtext-${size}`]: size, "p-invalid": error,
+  const classes = classNames("", { [`p-inputtext-${size}`]: size, "p-invalid": error,
     "awe-suggest-multiple-summary": summary });
   const chosen = value.map(item => ({ ...item, label: getSuggestionLabel(item) }));
   // A field with chosen values offers one button that empties all of them. A required one too: the validation warns if

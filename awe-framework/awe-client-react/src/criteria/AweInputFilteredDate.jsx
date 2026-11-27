@@ -42,7 +42,7 @@ function AweInputFilteredDate(props) {
   const onKeyDown = useEnterKey(onSubmit);
 
   const { placeholder, required, readonly, size, error } = attributes;
-  const classes = classNames({ [`text-${size}`]: size, [`p-inputtext-${size}`]: size, "p-invalid": error });
+  const classes = classNames({ [`p-inputtext-${size}`]: size, "p-invalid": error });
 
   const selected = (model.values || []).find(v => v.selected)?.value || null;
 

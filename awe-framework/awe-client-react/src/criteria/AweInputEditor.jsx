@@ -25,7 +25,7 @@ function AweInputEditor(props) {
     }
   }, [value]);
 
-  const classes = classNames({[`text-${size}`]: size, [`p-inputtext-${size}`]: size, "p-invalid": error});
+  const classes = classNames({[`p-inputtext-${size}`]: size, "p-invalid": error});
 
   return <AweCriterion address={address} attributes={attributes} validationRules={validationRules}
                        generateLabel={false} generateIcon={false} generateUnit={false} groupClass={"col-12"}>

@@ -61,7 +61,7 @@ function AweInputDateRange(props) {
   const current = applied ?? {code: String(attributes.value || "").toUpperCase(), ...resolvePreset(attributes.value)};
   const isActive = (code) => current.code === code && current.from === from && current.to === to;
 
-  const classes = classNames({[`text-${size}`]: size, [`p-inputtext-${size}`]: size, "p-invalid": error});
+  const classes = classNames({[`p-inputtext-${size}`]: size, "p-invalid": error});
   // Enter in any of the two inputs submits the screen
   const onKeyDown = useEnterKey(onSubmit);
   const passThrough = (testId) => calendarPassThrough(address?.component, onKeyDown, testHook(testId));
