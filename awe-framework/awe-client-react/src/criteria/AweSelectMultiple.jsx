@@ -44,7 +44,7 @@ function AweSelectMultiple(props) {
   // stays one control high: the chips that fit, then a counter that lists them all (#922)
   const oneLine = display !== "chip";
   const classes = classNames({
-    [`text-${size}`]: size, [`p-inputtext-${size}`]: size, "p-invalid": error,
+    [`p-inputtext-${size}`]: size, "p-invalid": error,
     "awe-select-multiple": oneLine, "awe-select-multiple-clearable": oneLine && optional && selected?.length
   });
   // A readonly field lists its values without offering to remove them. With no value, the placeholder or an empty label

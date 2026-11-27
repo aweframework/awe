@@ -63,9 +63,11 @@ const AweCriterion = ({children, note, address, attributes, validationRules,
     return null;
   };
 
+  // The size class gives the addon the height and the font of the field: no text-* utility, whose font size
+  // (primeflex, !important) differs from the field one
   const getIcon = () => {
     return icon ? (
-      <span className={classNames("p-inputgroup-addon", {[`text-${size}`]: size, [`p-inputtext-${size}`]: size})}>
+      <span className={classNames("p-inputgroup-addon", {[`p-inputtext-${size}`]: size})}>
         {getIconCode(icon)}
       </span>
     ) : null;
@@ -74,7 +76,7 @@ const AweCriterion = ({children, note, address, attributes, validationRules,
   const getUnit = () => {
     if (unit) {
       return (
-        <span className={classNames("p-inputgroup-addon", {[`text-${size}`]: size, [`p-inputtext-${size}`]: size})}
+        <span className={classNames("p-inputgroup-addon", {[`p-inputtext-${size}`]: size})}
               {...testHook(TestIds.criterionUnit)}>
           {translateLabel(unit, t)}
         </span>

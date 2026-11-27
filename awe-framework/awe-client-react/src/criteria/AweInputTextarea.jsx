@@ -14,7 +14,7 @@ function AweInputTextarea(props) {
   const { address, attributes, validationRules, value, onChange, onBlur } = useText(id);
 
   const {required, readonly, size, areaRows, error } = attributes;
-  const classes = classNames("w-full", { [`text-${size}`]: size, [`p-inputtext-${size}`]: size, "p-invalid": error });
+  const classes = classNames("w-full", { [`p-inputtext-${size}`]: size, "p-invalid": error });
 
   return (
     <AweCriterion address={address} attributes={attributes} validationRules={validationRules}

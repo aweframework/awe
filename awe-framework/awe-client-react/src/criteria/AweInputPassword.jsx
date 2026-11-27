@@ -45,7 +45,7 @@ function AweInputPassword(props) {
   const onKeyDown = useEnterKey(onSubmit);
   const capsId = `${address?.component}-caps`;
   const capsWarning = signin && capsLockOn;
-  const classes = classNames({ [`text-${size}`]: size, [`p-inputtext-${size}`]: size, "p-invalid": error,
+  const classes = classNames({ [`p-inputtext-${size}`]: size, "p-invalid": error,
     "caps-lock": capsLockOn && !signin, "signin-password": signin, "password-field": !signin });
 
   const note = capsWarning && <small id={capsId} className="help help--warning signin-caps">

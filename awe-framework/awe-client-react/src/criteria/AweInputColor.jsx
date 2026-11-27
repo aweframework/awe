@@ -20,7 +20,7 @@ function AweInputColor(props) {
   const overlayRef = useRef(null);
 
   const { placeholder, required, readonly, size } = attributes;
-  const classes = classNames({ [`text-${size}`]: size, [`p-inputtext-${size}`]: size });
+  const classes = classNames({ [`p-inputtext-${size}`]: size });
 
   const onPickerChange = useCallback((e) => {
     onChange({ target: { value: toColor(e.target.value) } });
